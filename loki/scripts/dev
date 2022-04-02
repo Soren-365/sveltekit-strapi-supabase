@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# ------------------------------------------------------------------
+# This script wraps docker-compose to provide environment based
+# defaults and added functionality.
+#
+# Use it from the project root just like docker-composer
+#
+# example:
+#
+# scripts/dev up
+# ------------------------------------------------------------------
+
+# take a look to this file to learn more on the predefined
+# environment variables and functions
+source $(dirname "$0")/lib/init
+
+# allow frontend and backend folders to be read by Dockerfile(s)
+make-dockerignore frontend backend svelte
+
+COMMON="-f docker-compose.yml -f docker-compose.dev.yml"
+FRONTEND="-f docker/frontend/docker-compose.yml -f docker/frontend/docker-compose.dev.yml"
+BACKEND="-f docker/backend/docker-compose.yml -f docker/backend/docker-compose.dev.yml"
+SVELTE="-f docker/svelte/docker-compose.yml -f docker/svelte/docker-compose.dev.yml"
+POSTGRES="-f docker/postgres/docker-compose.yml -f docker/postgres/docker-compose.dev.yml"
+AUTH="-f docker/auth/docker-compose.yml -f docker/auth/docker-compose.dev.yml"
+
+docker-compose $COMMON $FRONTEND $BACKEND $POSTGRES $SVELTE $AUTH  "$@"

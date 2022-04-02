@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# --- Base Environment Variables
+
+SCRIPTS=$(realpath $(dirname "$0"))
+THIS=$SCRIPTS/$(basename "$0")
+ROOT=$(realpath $SCRIPTS/..)
+DATA=$ROOT/data
+
+cd $ROOT
+
+# --- Common functions
+
+source $SCRIPTS/lib/config
+source $SCRIPTS/lib/make-dockerignore
+
+# --- Custom commands
+
+source $SCRIPTS/lib/custom-commands
+source $SCRIPTS/lib/node-commands
+
+handle-custom-commands "$@"
+handle-node-commands "$@"
+
+# in some cases (like global help) we just want to stop the execution immediately
+[ $STOP ] && exit 0
+
+# --- Other Environment Variables
+
+config USER_ID "$UID"

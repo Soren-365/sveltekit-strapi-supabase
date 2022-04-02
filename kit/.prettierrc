@@ -1,0 +1,23 @@
+{
+	"useTabs": true,
+	"singleQuote": true,
+	"trailingComma": "none",
+	"printWidth": 100,
+	"overrides": [
+		{
+			"files": ["*.svelte"],
+			"options": {
+				"svelteBracketNewLine": true
+			}
+		},
+		{
+			"files": [
+				"packages/kit/src/packaging/test/fixtures/**/expected/**/*",
+				"packages/kit/src/core/build/prerender/fixtures/**/*"
+			],
+			"options": {
+				"requirePragma": true
+			}
+		}
+	]
+}
