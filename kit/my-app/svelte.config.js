@@ -1,15 +1,23 @@
 import adapter from '@sveltejs/adapter-auto';
 import preprocess from 'svelte-preprocess';
+//import path from 'path'
+//import houdini from 'houdini-preprocess'
+
+
 
 /** @type {import('@sveltejs/kit').Config} */
-const config = {
+export default {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
-	preprocess: preprocess(),
+	preprocess: [preprocess()],
 
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
+		vite: {
+			// optimizeDeps: {
+			// 	include: ['broadcast-channel']
+			//   },
+         
+        }
 	}
 };
-
-export default config;

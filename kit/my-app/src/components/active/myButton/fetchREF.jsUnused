@@ -1,0 +1,176 @@
+
+import { writable } from 'svelte/store'
+
+let baseStyle = [
+  "color: #fff",
+  "background-color: #444",
+  "padding: 0px 4px",
+  "border-radius: 6px",
+  "margin-top: 33px"
+].join(";");
+
+let succesStyle = [
+  "color: #fff",
+  "background-color: #444",
+  "padding: 0px 4px",
+  "border-radius: 6px",
+  "margin-top: 33px",
+  "background-color: green"
+].join(";");
+
+let requestStyle = [
+  "color: #fff",
+  "background-color: #444",
+  "padding: 0px 4px",
+  "border-radius: 6px",
+  "margin-top: 33px",
+  "background-color: blue"
+].join(";");
+
+console.log("%cfetch.js: me_php_object (the static data to client): ", baseStyle);
+
+const loading = writable(false)
+const error = writable(false)
+const data = writable(me_php_object.from_php)
+
+
+export function userListStore(ajax_action_name, table, updateData) {
+
+
+  async function update_db(table, updateData) {
+
+    loading.set(true)
+    error.set(false)
+    try {
+
+      // response is not used here. its just the update into the db
+      const response = await fetchWrapper(ajax_action_name, nonce, table, updateData)
+
+    //  console.log("fetch resp in userListStore update_db(): (error or mirror request data)", response)
+
+    //  console.log("updateData", updateData)
+      // optimistic update implemented below
+
+      const updated_user_ids = updateData.map(entry => entry.user_id)
+      data.update(data => {
+
+        const updated_data = data.filter((row) => updated_user_ids.includes(row.user_id)).map((row, index) => {
+            // console.log("ROW", row)
+          const rowOut = { ...row, ...updateData[index] }
+          //    console.log("ROWout", rowOut)
+          return rowOut
+        }) //
+
+        const not_updated_data = data.filter((row) => !updated_user_ids.includes(row.user_id))
+        const new_data = [...not_updated_data, ...updated_data]
+        const sorted_new_data = new_data.sort(function (a, b) { return a.user_id - b.user_id })
+       // console.log("sorted_new_data", sorted_new_data)
+        return sorted_new_data
+      })
+
+    } catch (e) {
+      error.set(e)
+    }
+    loading.set(false)
+  }
+
+  if (updateData) {
+
+
+    console.log("%cfetch.js: userListStore: updateData:", requestStyle)
+    console.log("fetch.js: ajax_action_name:", ajax_action_name)
+    if (ajax_action_name === "update_ajax_request") {
+      update_db(table, updateData)
+    } else if (ajax_action_name === "insert_ajax_request") {
+      console.log("fetch.js: userListStore Error: insert not implemented yet")
+    } else {
+      console.log("fetch.js: userListStore Error: the ajax_action_name (1st parameter):", ajax_action_name, "is not implemented")
+    }
+  }
+
+  return [data, loading, error, update_db]
+}
+
+export async function fetchWrapper(ajax_action_name, nonce, table, dataArray) {
+
+  const JsonStringifiedDataArray = JSON.stringify(dataArray)
+  console.log("fetch.js: sending this to php/ajax:", JsonStringifiedDataArray)
+  const response = await fetch("admin-ajax.php", {
+    method: "post",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `action=${ajax_action_name}&nonce=${nonce}&table=${table}&data_array=${JsonStringifiedDataArray}`,
+  })
+    .then((response) => response.body)
+    .then((rb) => {
+      const reader = rb.getReader();
+      return new ReadableStream({
+        start(controller) {
+          // The following function handles each data chunk
+          function push() {
+            // "done" is a Boolean and value a "Uint8Array"
+            reader.read().then(({ done, value }) => {
+              // If there is no more data to read
+              if (done) {
+                console.log("ajax recived from php", done);
+                controller.close();
+                return;
+              }
+              // Get the data and send it to the browser via the controller
+              controller.enqueue(value);
+              // Check chunks by logging to the console
+              //  console.log(done, value);
+              push();
+            });
+          }
+          push();
+        },
+      });
+    })
+    .then((stream) => {
+      // Respond with our stream
+      return new Response(stream, {
+        headers: { "Content-Type": "text/html" },
+      }).text();
+    })
+    .then((result) => {
+      // Do things with result
+      //  const parsedResult = JSON.parse(result)
+      console.log("%cStream recieved", "color: orange");
+      console.log("%cfetch.js: recieved RAW from php/ajax:", succesStyle)
+      console.log(result)
+
+
+      try {
+        return JSON.parse(result)
+      } catch (e) {
+        //   console.log("JSON.parse error:", e)
+        return result
+      }
+      // console.log("recieved PARSED from php/ajax:", JSON.parse(result))
+
+
+    });
+  return response
+}
+
+// const loggingStyle = {
+//   base: [
+//     "color: #fff",
+//     "background-color: #444",
+//     "padding: 2px 4px",
+//     "border-radius: 2px"
+//   ],
+//   warning: [
+//     "color: #eee",
+//     "background-color: red"
+//   ],
+//   success: [
+//     "background-color: green"
+//   ]
+// }
+
+// const log = (text, extra = []) => {
+//   let style = Style.base.join(';') + ';';
+//   style += extra.join(';'); // Add any additional styles
+//   console.log(`%c${text}`, style);
+// }

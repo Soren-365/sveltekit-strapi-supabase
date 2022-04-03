@@ -1,3 +1,19 @@
+#sorens notes:
+
+with houdini at install its using apollo and gets confused about the dirs in:
+/node-modules/houdini-common/build/esm/index.js line 786 add this: '/kit/my-app/'
+
+ex:
+var DEFAULT_CONFIG_PATH = path.join(process.cwd(), '/kit/my-app/houdini.config.js');
+
+also do:
+npx houdini init -ph x-hasura-admin-secret="9Yko0f3dyIz7GItzGgDrur4LeWcLf2Dre4uZIuVvBSmmDWcrQQEC0sqWkF1mrMu8" 
+or
+npx houdini init -ph x-hasura-admin-secret="9Yko0f3dyIz7GItzGgDrur4LeWcLf2Dre4uZIuVvBSmmDWcrQQEC0sqWkF1mrMu8" --pull-schema 
+and if needed:
+npx houdini generate -ph x-hasura-admin-secret="9Yko0f3dyIz7GItzGgDrur4LeWcLf2Dre4uZIuVvBSmmDWcrQQEC0sqWkF1mrMu8" --pull-schema 
+
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).

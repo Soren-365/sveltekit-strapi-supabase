@@ -1,0 +1,58 @@
+version: "3.3"
+services:
+  postgresql:
+    container_name: postgresql
+    restart: always
+    image: postgresql
+    build:
+      context: ./postgresql
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    networks:
+      - network
+    ports:
+      - 5432:5432
+
+  postgraphile:
+    container_name: postgraphile
+    restart: always
+    image: postgraphile
+    build:
+        context: ./postgraphile
+    env_file:
+        - ./.env
+    depends_on:
+        - postgresql
+    networks:
+        - network
+    ports:
+        - 5433:5433
+    command: ["--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public", "--append-plugins", "postgraphile-plugin-connection-filter"]
+  
+  strapi:
+    container_name: strapi
+    image: strapi/strapi
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_NAME: webdb
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: psqlpass
+    volumes:
+      - ./strapi:/srv/app
+    ports:
+      - '1337:1337'
+    networks:
+     - network
+    depends_on:
+      - postgresql
+      
+networks:
+  network:
+
+volumes:
+  postgresql:
+  strapi:
