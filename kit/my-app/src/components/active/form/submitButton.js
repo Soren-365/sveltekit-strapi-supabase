@@ -13,8 +13,8 @@ export async function mutate(values) {
 
 
   const mutation = gql`
-    mutation MyMutation($city: String, $comment: String, $country: String, $email: String!, $name: String!, $newsletter: Boolean, $project_type: String, $telephone: String, $work_field: String) {
-  insert_formSubmission(objects: {city: $city, comment: $comment, country: $country, email: $email, name: $name, newsletter: $newsletter, project_type: $project_type, telephone: $telephone, work_field: $work_field}){
+    mutation MyMutation($city: String, $comment: String, $country: String, $email: String!, $name: String!, $newsletter: Boolean, $project_type: String, $telephone: String, $work_field: String, $start_time: date) {
+  insert_formSubmission(objects: {city: $city, comment: $comment, country: $country, email: $email, name: $name, newsletter: $newsletter, project_type: $project_type, telephone: $telephone, work_field: $work_field, start_time: $start_time}){
     returning {id, name, email}
   }
 }
@@ -28,8 +28,8 @@ export async function mutate(values) {
     project_type: "A really big project"
   }
 
-  const data = await graphQLClient.request(mutation, testVariables)
-   console.log("rawData", data, typeof(data))
+  const data = await graphQLClient.request(mutation, values)
+   console.log("rawReturnData", data, typeof(data))
   //  console.log(JSON.parse(rawData, undefined))
 
   // const data = JSON.parse(rawData, undefined)

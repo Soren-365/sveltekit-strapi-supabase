@@ -1,7 +1,10 @@
-import adapter from '@sveltejs/adapter-auto';
+//import adapter from '@sveltejs/adapter-auto';
 import preprocess from 'svelte-preprocess';
 //import path from 'path'
 //import houdini from 'houdini-preprocess'
+
+import adapter from '@sveltejs/adapter-netlify';
+
 
 
 
