@@ -1,13 +1,13 @@
 version: "3.3"
 services:
-  postgresql:
-    container_name: postgresql
+  postgres:
+    container_name: postgres
     restart: always
-    image: postgresql
+    image: postgres:12
     build:
-      context: ./postgresql
+      context: ./postgres
     volumes:
-      - postgresql:/var/lib/postgresql/data
+      - db_data:/var/lib/postgres/data
     env_file:
       - ./.env
     networks:
@@ -15,32 +15,52 @@ services:
     ports:
       - 5432:5432
 
-  postgraphile:
-    container_name: postgraphile
-    restart: always
-    image: postgraphile
-    build:
-        context: ./postgraphile
-    env_file:
-        - ./.env
-    depends_on:
-        - postgresql
-    networks:
-        - network
-    ports:
-        - 5433:5433
-    command: ["--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public", "--append-plugins", "postgraphile-plugin-connection-filter"]
-  
+# postgraphile:
+#   container_name: postgraphile
+#   restart: always
+#   image: postgraphile
+#   build:
+#       context: ./postgraphile
+#   env_file:
+#       - ./.env
+#   depends_on:
+#       - postgresql
+#   networks:
+#       - network
+#   ports:
+#       - 5433:5433
+#   command: ["--connection", "${DATABASE_URL}", "--port", "5433", "--schema", "public", "--append-plugins", "postgraphile-plugin-connection-filter"]
+
+  graphql-engine:
+  image: hasura/graphql-engine:v2.6.0
+  ports:
+  - "8080:8080"
+  depends_on:
+  - "postgres"
+  restart: always
+  environment:
+    ## postgres database to store Hasura metadata
+    HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+    ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
+    PG_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+    ## enable the console served by server
+    HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+    ## enable debugging mode. It is recommended to disable this in production
+    HASURA_GRAPHQL_DEV_MODE: "true"
+    HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+    ## uncomment next line to set an admin secret
+    # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+
   strapi:
     container_name: strapi
     image: strapi/strapi
     environment:
       DATABASE_CLIENT: postgres
-      DATABASE_NAME: webdb
-      DATABASE_HOST: db
+      DATABASE_NAME: postgres
+      DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: psqlpass
+      DATABASE_PASSWORD: postgrespassword
     volumes:
       - ./strapi:/srv/app
     ports:
@@ -48,11 +68,11 @@ services:
     networks:
      - network
     depends_on:
-      - postgresql
+      - postgres
       
 networks:
   network:
 
 volumes:
-  postgresql:
+  db_data:
   strapi:
