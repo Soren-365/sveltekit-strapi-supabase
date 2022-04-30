@@ -1,6 +1,6 @@
 <script>
-	import MyButton from '../../components/active/myButton/InfoButton.svelte';
-	import Form from '../../components/active/form/Form.svelte';
+	import MyButton from '$lib/components/active/myButton/InfoButton.svelte';
+	import Form from '$lib/components/active/form/Form.svelte';
 	// The page always has access to props from `get`...
 	export let data;
 	// ...plus props from `post` when the page is rendered
@@ -8,7 +8,7 @@
 	// submitting the form below
 	export let errors;
 
-	const devMode = import.meta.env.PRODUCTION ? 'Production mode' : 'Development mode';
+	const devMode = import.meta.env.VITE_PRODUCTION ? 'Production mode' : 'Development mode';
 </script>
 
 <svelte:head>

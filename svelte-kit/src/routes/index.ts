@@ -1,7 +1,7 @@
 
 import { gql, GraphQLClient } from 'graphql-request';
 
-const contentful = require('contentful')
+import contentful from 'contentful';
 
 const graphcms = new GraphQLClient(
     'https://api-eu-central-1.graphcms.com/v2/cl2gpmayd3ayh01xm3xwwhkcz/master',
@@ -15,15 +15,14 @@ const graphcms = new GraphQLClient(
 
 //export type AllArticles = AllArticlesQuery[typeof schema_table];
 
-https://graphql.contentful.com/content/v1/spaces/6yal8citorkj/explore?access_token=xZKOHUJ5pKifqJm7l5T5eU21YOtlYu83ak3qW7z3nyc
 const client = contentful.createClient({
   space: '6yal8citorkj',
-  environment: '<environment_id>', // defaults to 'master' if not set
-  accessToken: '<content_delivery_api_key>'
+  environment: 'master', // defaults to 'master' if not set
+  accessToken: 'xZKOHUJ5pKifqJm7l5T5eU21YOtlYu83ak3qW7z3nyc'
 })
 
-client.getContentType('<content_type_id>')
-.then((contentType) => console.log(contentType))
+client.getContentType('blog')
+.then((contentType: any) => console.log(contentType))
 .catch(console.error)
 
 /** @type {import('./Articles').RequestHandler} */
@@ -57,3 +56,43 @@ let returnObject = {}
 		status: 404
 	};
 }
+
+// //   /** @type {import('./index').RequestHandler<{
+// //  *   name: string;
+// //  * }>} */
+// // export async function get() {
+// //   const query = `query MyQuery {
+// //     formSubmission {
+// //       id
+// //       name
+// //       email
+// //       project_type
+// //       call_me
+// //     }
+// //   }`
+
+// //   const items = await db.query(query);
+ 
+// //   return {
+// //     body: { items }
+// //   };
+// // }
+
+// // /** @type {import('@sveltejs/kit').RequestHandler<{
+// //  *   query: string;
+// //  * }>} */
+
+// // export async function get({ params }) {
+// //   // `params.id` comes from [id].js
+// //   const item = await db.query(params.query);
+ 
+// //   if (item) {
+// //     return {
+// //       body: { item }
+// //     };
+// //   }
+ 
+// //   return {
+// //     status: 404
+// //   };
+// // }
