@@ -1,1 +1,1 @@
-# sveltekit-strapi-postgraphile-
+# sveltekit-strapi-supabase
